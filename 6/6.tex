@@ -14,9 +14,9 @@
 
 % listings 配置
 \lstset{
-	basicstyle=\ttfamily\small,
+	basicstyle=\ttfamily\tiny,
 	keywordstyle=\color{blue}\bfseries,
-	commentstyle=\color{green}\itshape,
+	commentstyle=\color{green!50!black}\itshape,
 	stringstyle=\color{purple},
 	numbers=left,
 	numberstyle=\tiny,
@@ -24,7 +24,8 @@
 	tabsize=2,
 	frame=single,
 	captionpos=b,
-	columns=fullflexible
+	columns=fullflexible,
+	showstringspaces=false
 }
 
 \begin{document}
@@ -159,6 +160,6 @@ P(\lambda) = O_c + r(\cos(\phi_0 + \lambda (\phi_f - \phi_0)) \cdot i + \sin(\ph
 \vspace{3em}
 
 附Matlab程序：
-\lstinputlisting[language=Matlab]{asset/trajectory_planning.m}
+\lstinputlisting[language=Matlab]{src/1.m}
 
 \end{document}
