@@ -74,15 +74,16 @@ end
 %% 逆运动学求解
 theta_traj = zeros(3, N);
 
-% 定义正运动学误差函数
-fk_error = @(theta, p_target) forward_kinematics(theta, d1, a2, a3) - p_target;
+% 定义目标函数：最小化正运动学误差的平方和
+objective = @(theta, p_target) norm(forward_kinematics(theta, d1, a2, a3) - p_target)^2;
 
 % 设置求解器选项
-options = optimoptions('fsolve', ...
+options = optimset(...
     'Display', 'off', ...           % 不显示迭代信息
-    'TolFun', 1e-8, ...             % 函数容差
-    'TolX', 1e-8, ...               % 变量容差
-    'MaxIterations', 1000);         % 最大迭代次数
+    'TolFun', 1e-12, ...            % 函数容差
+    'TolX', 1e-10, ...              % 变量容差
+    'MaxIter', 1000, ...            % 最大迭代次数
+    'MaxFunEvals', 3000);           % 最大函数评估次数
 
 fprintf('\n开始逆运动学求解...\n');
 
@@ -96,13 +97,16 @@ for i = 1:N
         theta_init = theta_traj(:, i-1);
     end
     
-    % 使用fsolve求解
-    [theta_sol, fval, exitflag] = fsolve(@(theta) fk_error(theta, p_target), ...
-                                          theta_init, options);
+    % 使用 fminsearch 求解（最小化误差）
+    [theta_sol, fval, exitflag] = fminsearch(@(theta) objective(theta, p_target), ...
+                                               theta_init, options);
     
-    % 检查求解状态
+    % 检查求解状态和精度
     if exitflag <= 0
         warning('在时刻 t=%.2f 处逆运动学求解未收敛，exitflag=%d', t(i), exitflag);
+    end
+    if fval > 1e-6
+        warning('在时刻 t=%.2f 处逆运动学求解精度较低，残差=%.6f', t(i), sqrt(fval));
     end
     
     theta_traj(:, i) = theta_sol;

@@ -5,6 +5,7 @@
 \usepackage{fontspec} % XeLaTeX 字体支持
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{float} % 支持 [H] 强制浮动体位置
 
 % 等宽字体（可根据系统调整）
 \setmonofont{DejaVu Sans Mono}
@@ -126,7 +127,7 @@ k = \frac{n}{\|n\|}
 \[
 j = k \times i 
     = \begin{bmatrix}
-        0.7029 \\ -0.5789 \\ -0.4136
+        0.7029 \\ -0.5788 \\ -0.4134
     \end{bmatrix}
 \]
 
@@ -156,10 +157,39 @@ P(\lambda) = O_c + r(\cos(\phi_0 + \lambda (\phi_f - \phi_0)) \cdot i + \sin(\ph
 \lambda(t) = 3\left(\frac{t}{t_f}\right)^2 - 2\left(\frac{t}{t_f}\right)^3
 \]
 
+\vspace{3em}
+
+
+求解得机器人关节角，末端位置曲线及3D轨迹如下：
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{asset/joint.PNG}
+        
+        \vspace{1em}
+        
+        \includegraphics[width=\textwidth]{asset/end.PNG}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[c]{0.50\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{asset/3D.PNG}
+    \end{minipage}
+    
+    \caption{机器人轨迹规划结果}
+\end{figure}
 
 \vspace{3em}
 
+
 附Matlab程序：
 \lstinputlisting[language=Matlab]{src/1.m}
+
+\newpage
+
+
+2.
+
 
 \end{document}
