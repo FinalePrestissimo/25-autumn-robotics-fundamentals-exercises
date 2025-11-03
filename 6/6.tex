@@ -1,11 +1,13 @@
 \documentclass[UTF8,12pt]{ctexart}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{physics}
 \usepackage{xeCJK} % XeLaTeX CJK support (loads fontspec)
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{float} % 支持 [H] 强制浮动体位置
+\usepackage{caption}
 
 % 等宽字体（可根据系统调整）
 \setmonofont{DejaVu Sans Mono}
@@ -182,7 +184,7 @@ P(\lambda) = O_c + r(\cos(\phi_0 + \lambda (\phi_f - \phi_0)) \cdot i + \sin(\ph
 
 
 附Matlab程序：
-\lstinputlisting[language=Matlab]{src/1.m}
+\lstinputlisting[language=Matlab]{src/q1.m}
 
 \newpage
 
@@ -198,9 +200,9 @@ P(\lambda) = O_c + r(\cos(\phi_0 + \lambda (\phi_f - \phi_0)) \cdot i + \sin(\ph
                     0 & 0 & 0 & 1
                 \end{bmatrix} \\
     {}^1 T_2 &= \begin{bmatrix}
-                    \cos\theta_2 & 0 & \sin\theta_2 & 0 \\
-                    \sin\theta_2 & 0 & -\cos\theta_2 & 0 \\
-                    0 & 1 & 0 & 0 \\
+                    \cos\theta_2 & 0 & -\sin\theta_2 & 0 \\
+                    \sin\theta_2 & 0 & \cos\theta_2 & 0 \\
+                    0 & -1 & 0 & 0 \\
                     0 & 0 & 0 & 1
                 \end{bmatrix} \\
     {}^2 T_3 &= \begin{bmatrix}
@@ -226,7 +228,7 @@ P(\lambda) = O_c + r(\cos(\phi_0 + \lambda (\phi_f - \phi_0)) \cdot i + \sin(\ph
     {}^0 R_3 = \begin{bmatrix}
                     \cos\theta_1 \cos\theta_2 \cos\theta_3 + \sin\theta_1 \sin\theta_3 & -\cos\theta_1 \cos\theta_2 \sin\theta_3 + \sin\theta_1 \cos\theta_3 & -\cos\theta_1 \sin\theta_2 \\
                     \sin\theta_1 \cos\theta_2 \cos\theta_3 - \cos\theta_1 \sin\theta_3 & -\sin\theta_1 \cos\theta_2 \sin\theta_3 - \cos\theta_1 \cos\theta_3 & -\sin\theta_1 \sin\theta_2 \\
-                    -\sin\theta_2 \cos\theta_3 & \sin\theta_2 \sin\theta_3 & \cos\theta_2
+                    -\sin\theta_2 \cos\theta_3 & \sin\theta_2 \sin\theta_3 & -\cos\theta_2
                 \end{bmatrix}
 \]
 
@@ -235,7 +237,7 @@ P(\lambda) = O_c + r(\cos(\phi_0 + \lambda (\phi_f - \phi_0)) \cdot i + \sin(\ph
     {}^0 P_3 = \begin{bmatrix}
                     -d_3 \cos\theta_1 \sin\theta_2 \\
                     -d_3 \sin\theta_1 \sin\theta_2 \\
-                    d_1 + d_3 \cos\theta_2
+                    d_1 - d_3 \cos\theta_2
                 \end{bmatrix}
 \]
 
@@ -355,24 +357,126 @@ k_z & 0 & -k_x \\
 \textbf{方法1（三次多项式直接插值）：}
 \begin{itemize}
     \item 优点：实现简单，计算量小
-    \item 缺点：各姿态角分量独立插值，可能导致非最短路径旋转；角速度在端点虽然为零，但中间可能不够平滑
+    \item 缺点：各姿态角分量独立插值，可能导致非最优路径旋转；三次多项式使角速度在端点虽然为零，但中间可能不够平滑
 \end{itemize}
 
 \textbf{方法2（五次多项式等效转角插值）：}
 \begin{itemize}
     \item 优点：基于等效转轴和转角，保证最短路径旋转；五次多项式使加速度在起止点为零，运动更加平滑；物理意义明确
-    \item 缺点：计算稍复杂，需要旋转矩阵的转换
+    \item 缺点：计算稍复杂
 \end{itemize}
 
 \vspace{2em}
 
 
-求解得到的姿态角曲线、角速度曲线及关节角曲线如下图所示。
+求解得到的姿态角曲线、角速度曲线及关节角曲线如下图所示：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.\textwidth]{asset/end_euler.jpg}
+    \caption*{末端姿态角变化曲线}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.\textwidth]{asset/end_angvel.jpg}
+    \caption*{末端角速度曲线}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.\textwidth]{asset/joint_ang.jpg}
+    \caption*{关节角曲线}
+\end{figure}
 
 \vspace{3em}
 
 
-附Matlab程序：
-\lstinputlisting[language=Matlab]{src/2.m}
+% 附Matlab程序：
+% \lstinputlisting[language=Matlab]{src/2.m}
+
+\newpage
+
+
+3.
+\begin{table}[H]
+\centering
+\begin{tabular}{cl}
+\hline
+变量 & 说明 \\
+\hline
+\(m\) & 机械臂旋转关节总数 \\
+\(n\) & 末端自由度（\(n \leq 6\)） \\
+\(\boldsymbol{\tau}\) & 关节力矩向量 \\
+\(\mathbf{q}\) & 关节角向量 \\
+\(\delta\mathbf{q}\) & 关节虚位移 \\
+\(\mathbf{F} \in \mathbb{R}^n\) & 末端广义力向量（包含力和力矩） \\
+\(\mathbf{x}_e \in \mathbb{R}^n\) & 末端广义位移向量（包含线位移和角位移） \\
+\(\delta\mathbf{x}_e \in \mathbb{R}^n\) & 末端广义虚位移 \\
+\hline
+\end{tabular}
+\end{table}
+
+\vspace{3em}
+
+
+根据虚功原理，系统处于静力平衡时，所有外力在虚位移上所做的虚功之和为零。
+
+关节空间的虚功为：
+\[
+\delta W_{\text{joint}} = \boldsymbol{\tau}^T \delta\mathbf{q}
+\]
+
+末端操作空间的虚功为：
+\[
+\delta W_{\text{end}} = \mathbf{F}^T \delta\mathbf{x}_e
+\]
+
+\vspace{1em}
+
+末端广义虚位移与关节虚位移的关系由雅可比矩阵 \(\mathbf{J}(\mathbf{q}) \in \mathbb{R}^{n \times m}\) 给出：
+\[
+\delta\mathbf{x}_e = \mathbf{J}(\mathbf{q}) \delta\mathbf{q}
+\]
+
+其中雅可比矩阵定义为：
+\[
+\mathbf{J}(\mathbf{q}) = \frac{\partial \mathbf{x}_e}{\partial \mathbf{q}}
+\]
+
+\vspace{1em}
+
+将末端虚位移关系代入末端虚功表达式：
+\[
+\delta W_{\text{end}} = \mathbf{F}^T \mathbf{J}(\mathbf{q}) \delta\mathbf{q}
+\]
+
+\vspace{1em}
+
+根据虚功原理，系统总虚功为零：
+\[
+\delta W = \delta W_{\text{joint}} - \delta W_{\text{end}} = 0
+\]
+
+代入得：
+\[
+\boldsymbol{\tau}^T \delta\mathbf{q} - \mathbf{F}^T \mathbf{J}(\mathbf{q}) \delta\mathbf{q} = 0
+\]
+
+整理为：
+\[
+\left(\boldsymbol{\tau}^T - \mathbf{F}^T \mathbf{J}(\mathbf{q})\right) \delta\mathbf{q} = 0
+\]
+
+由于虚位移 \(\delta\mathbf{q}\) 是任意的，上式恒成立当且仅当：
+\[
+\boldsymbol{\tau}^T - \mathbf{F}^T \mathbf{J}(\mathbf{q}) = \mathbf{0}
+\]
+
+即静力学方程为：
+\[
+\boldsymbol{\tau} = \mathbf{J}^T(\mathbf{q}) \mathbf{F}
+\]
+
 
 \end{document}
